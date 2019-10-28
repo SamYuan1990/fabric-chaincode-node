@@ -7,7 +7,7 @@
 
 const {Contract} = require('fabric-contract-api');
 
-async function getAllResults(iterator, getKeys) {
+/*async function getAllResults(iterator, getKeys) {
     const allResults = [];
     let loop = true;
     while (loop) {
@@ -26,7 +26,7 @@ async function getAllResults(iterator, getKeys) {
             return allResults;
         }
     }
-}
+}*/
 
 class QueryChaincode extends Contract {
 
@@ -57,7 +57,7 @@ class QueryChaincode extends Contract {
 
     async query({stub}, query) {
         const iterator = await stub.getQueryResult(query);
-        const results = await getAllResults(iterator);
+        const results = await stub.getAllResultsFromIterator(iterator,false);
         return JSON.stringify(results);
     }
 

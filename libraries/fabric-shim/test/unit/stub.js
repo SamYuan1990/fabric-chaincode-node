@@ -1420,4 +1420,53 @@ describe('Stub', () => {
             });
         });
     });
+
+    describe('getAllResultsFromIterator', async () => {
+        class BufferIterator {
+            constructor() {
+                this.items = [
+                    new Buffer.from('hello'),
+                    new Buffer.from('world')
+                ];
+                this.count = 0;
+                this.closeCalled = false;
+            }
+            async next() {
+                return new Promise((resolve, reject) => {
+                    if (this.count === this.items.length) {
+                        resolve({done: true});
+                    }
+                    resolve({key: this.count, value: this.items[this.count], done: false});
+                    this.count++;
+                });
+            }
+            async close() {
+                this.closeCalled = true;
+                return Promise.resolve();
+            }
+        }
+        it('should able to get value', async () => {
+            const handleGetStateByRangeStub = sinon.stub().resolves({iterator: 'some state'});
+
+            const stub = new Stub({
+                handleGetStateByRange: handleGetStateByRangeStub
+            }, 'dummyChannelId', 'dummyTxid', {
+                args: []
+            });
+            const result = await stub.getAllResultsFromIterator(new BufferIterator(), false);
+            expect(result).to.eql(['hello', 'world'], 'value should equals to hello world');
+        });
+
+        it('should able to get key', async () => {
+            const handleGetStateByRangeStub = sinon.stub().resolves({iterator: 'some state'});
+
+            const stub = new Stub({
+                handleGetStateByRange: handleGetStateByRangeStub
+            }, 'dummyChannelId', 'dummyTxid', {
+                args: []
+            });
+            const result = await stub.getAllResultsFromIterator(new BufferIterator(), true);
+            expect(result).to.eql([0, 1], 'key should equals to 0 1');
+        });
+    });
 });

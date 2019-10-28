@@ -1096,6 +1096,32 @@ class ChaincodeStub {
         const promise = this.handler.handleGetQueryResult(collection, query, null, this.channel_id, this.txId);
         return convertToAsyncIterator(promise);
     }
+
+    /**
+     * getAllResultsFromIterator is a Iterator reader for
+     * getStateByRange
+     * getQueryResultWithPagination
+     * getPrivateDataByRange
+     * @param {iterator} iterator the iterator
+     * @param {getKeys} bool a switch for fetch key or value(value by default)
+     * @returns {string[]} allResults the values inside iterator in array, format by utf-8
+     */
+    async getAllResultsFromIterator(iterator, getKeys) {
+        const allResults = [];
+        const loop = true;
+        while (loop) {
+            const res = await iterator.next();
+            if (res.value) {
+                allResults.push((getKeys) ? res.key : res.value.toString('utf8'));
+            }
+            // check to see if we have reached then end
+            if (res.done) {
+                // explicitly close the iterator
+                await iterator.close();
+                return allResults;
+            }
+        }
+    }
 }
 
 module.exports = ChaincodeStub;

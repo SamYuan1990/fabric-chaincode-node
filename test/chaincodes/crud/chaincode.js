@@ -7,7 +7,7 @@
 
 const {Contract} = require('fabric-contract-api');
 
-async function getAllResults(iterator, getKeys) {
+/*async function getAllResults(iterator, getKeys) {
     const allResults = [];
     let loop = true;
     while (loop) {
@@ -38,7 +38,7 @@ async function getAllResultsUsingAsyncIterator(promiseOfIterator, getKeys) {
     // iterator will be automatically closed on exit from the loop
     // either by reaching the end, or a break or throw terminated the loop
     return allResults;
-}
+}*/
 
 class CrudChaincode extends Contract {
 
@@ -102,37 +102,37 @@ class CrudChaincode extends Contract {
     async getPartialCompositeKey({stub}) {
         const {params} = stub.getFunctionAndParameters();
         const result = await stub.getStateByPartialCompositeKey('name~color', params);
-        return (await getAllResults(result)).toString().split(',');
+        return (await stub.getAllResultsFromIterator(result,false)).toString().split(',');
     }
 
     async getPartialCompositeKeyUsingAsyncIterator({stub}) {
         const {params} = stub.getFunctionAndParameters();
         const promiseOfIterator = stub.getStateByPartialCompositeKey('name~color', params);
-        return (await getAllResultsUsingAsyncIterator(promiseOfIterator)).toString().split(',');
+        return (await stub.getAllResultsFromIterator(promiseOfIterator,false)).toString().split(',');
     }
 
     async getKeysByRange({stub}) {
         const {params} = stub.getFunctionAndParameters();
         const result = await stub.getStateByRange(params[0], params[1]);
-        return (await getAllResults(result)).toString().split(',');
+        return (await stub.getAllResultsFromIterator(result,false)).toString().split(',');
     }
 
     async getKeysByRangeUsingAsyncIterator({stub}) {
         const {params} = stub.getFunctionAndParameters();
         const promiseOfIterator = stub.getStateByRange(params[0], params[1]);
-        return (await getAllResultsUsingAsyncIterator(promiseOfIterator)).toString().split(',');
+        return (await stub.getAllResultsFromIterator(promiseOfIterator,false)).toString().split(',');
     }
 
     async getHistoryForKey({stub}) {
         const {params} = stub.getFunctionAndParameters();
         const iterator = await stub.getHistoryForKey(params[0]);
-        return (await getAllResults(iterator)).toString().split(',');
+        return (await stub.getAllResultsFromIterator(iterator,false)).toString().split(',');
     }
 
     async getHistoryForKeyUsingAsyncIterator({stub}) {
         const {params} = stub.getFunctionAndParameters();
         const promiseOfIterator = stub.getHistoryForKey(params[0]);
-        return (await getAllResultsUsingAsyncIterator(promiseOfIterator)).toString().split(',');
+        return (await stub.getAllResultsFromIterator(promiseOfIterator,false)).toString().split(',');
     }
 
     async getQueryResultWithPagination({stub}) {
@@ -147,12 +147,12 @@ class CrudChaincode extends Contract {
         let response = await stub.getQueryResultWithPagination(JSON.stringify(query), 2);
         const {iterator, metadata} = response;
 
-        let results = await getAllResults(iterator, true /* get keys instead of values */);
+        let results = await stub.getAllResultsFromIterator(iterator, true /* get keys instead of values */);
         const results1 = results;
         const metadata1 = metadata;
 
         response = await stub.getQueryResultWithPagination(JSON.stringify(query), 1, metadata.bookmark);
-        results = await getAllResults(response.iterator, true /* get keys instead of values */);
+        results = await stub.getAllResultsFromIterator(response.iterator, true /* get keys instead of values */);
         const results2 = results;
         const metadata2 = response.metadata;
         return {results1, metadata1, results2, metadata2};
@@ -168,12 +168,12 @@ class CrudChaincode extends Contract {
         };
 
         let promiseOfIterator = stub.getQueryResultWithPagination(JSON.stringify(query), 2);
-        let results = await getAllResultsUsingAsyncIterator(promiseOfIterator, true /* get keys instead of values */);
+        let results = await stub.getAllResultsFromIterator(promiseOfIterator, true /* get keys instead of values */);
         const results1 = results;
         const metadata1 = (await promiseOfIterator).metadata;
 
         promiseOfIterator = stub.getQueryResultWithPagination(JSON.stringify(query), 1, metadata1.bookmark);
-        results = await getAllResultsUsingAsyncIterator(promiseOfIterator, true /* get keys instead of values */);
+        results = await stub.getAllResultsFromIterator(promiseOfIterator, true /* get keys instead of values */);
         const results2 = results;
         const metadata2 = (await promiseOfIterator).metadata;
         return {results1, metadata1, results2, metadata2};
@@ -189,7 +189,7 @@ class CrudChaincode extends Contract {
             }
         });
         const {iterator} = await stub.getStateByRangeWithPagination(...params);
-        return (await getAllResults(iterator)).toString().split(',');
+        return (await stub.getAllResultsFromIterator(iterator,false)).toString().split(',');
     }
 
     async getStateByRangeWithPaginationUsingAsyncIterator({stub}) {
@@ -202,31 +202,31 @@ class CrudChaincode extends Contract {
             }
         });
         const promiseOfIterator = stub.getStateByRangeWithPagination(...params);
-        return (await getAllResultsUsingAsyncIterator(promiseOfIterator)).toString().split(',');
+        return (await stub.getAllResultsFromIterator(promiseOfIterator,false)).toString().split(',');
     }
 
     async getStateByPartialCompositeKey({stub}) {
         const {params} = stub.getFunctionAndParameters();
         const iterator = await stub.getStateByPartialCompositeKey(params[0], params.slice(1));
-        return await getAllResults(iterator);
+        return await stub.getAllResultsFromIterator(iterator,false);
     }
 
     async getStateByPartialCompositeKeyUsingAsyncIterator({stub}) {
         const {params} = stub.getFunctionAndParameters();
         const promiseOfIterator =  stub.getStateByPartialCompositeKey(params[0], params.slice(1));
-        return await getAllResultsUsingAsyncIterator(promiseOfIterator);
+        return await stub.getAllResultsFromIterator(promiseOfIterator,false);
     }
 
     async getStateByPartialCompositeKeyWithPagination({stub}) {
         const {params} = stub.getFunctionAndParameters();
         const {iterator} = await stub.getStateByPartialCompositeKeyWithPagination(params[0], [], parseInt(params[1]), '');
-        return await getAllResults(iterator);
+        return await stub.getAllResultsFromIterator(iterator,false);
     }
 
     async getStateByPartialCompositeKeyWithPaginationUsingAsyncIterator({stub}) {
         const {params} = stub.getFunctionAndParameters();
         const promiseOfIterator = stub.getStateByPartialCompositeKeyWithPagination(params[0], [], parseInt(params[1]), '');
-        return await getAllResultsUsingAsyncIterator(promiseOfIterator);
+        return await stub.getAllResultsFromIterator(promiseOfIterator,false);
     }
 
     /*
@@ -283,7 +283,7 @@ class CrudChaincode extends Contract {
         const {params} = stub.getFunctionAndParameters();
 
         const iterator = await stub.getStateByPartialCompositeKey('name~color', [params[0]]);
-        const results = await getAllResults(iterator, true /* get keys instead of values */);
+        const results = await stub.getAllResultsFromIterator(iterator, true /* get keys instead of values */);
 
         const key1 = stub.splitCompositeKey(results[0]);
         const key2 = stub.splitCompositeKey(results[1]);
