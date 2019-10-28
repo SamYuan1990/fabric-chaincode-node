@@ -33,23 +33,7 @@ As a comparison lets present first how you would use iterators in previous relea
 In the past, you might have coded something like this to process an iterator
 
 ```javascript
-async function getAllResults(iterator) {
-    const allResults = [];
-    while (true) {
-        const res = await iterator.next();
-        if (res.value) {
-            // if not a getHistoryForKey iterator then key is contained in res.value.key
-            allResults.push(res.value.value.toString('utf8'););
-        }
-
-        // check to see if we have reached then end
-        if (res.done) {
-            // explicitly close the iterator            
-            await iterator.close();
-            return allResults;
-        }
-    }
-}
+await stub.getAllResultsFromIterator(iterator,false);
 ```
 as iterator.next() returned an object of the form
 ```javascript
@@ -84,20 +68,20 @@ and you would obtain an iterator as follows (depending on the api you are callin
 ```javascript
 // use await to get the iterator and pass it to getAllResults
 const iterator = await ctx.stub.getStateByRange(startKey, endKey);
-let results await getAllResults(iterator);
+let results await ctx.stub.getAllResultsFromIterator(iterator,false);
 
 // use await to get the object containing the iterator and metadata and
 // pass it to getAllResults. All Pagination type queries return an object
 // with iterator and metadata properties
 let response = await ctx.stub.getQueryResultWithPagination(JSON.stringify(query), 2);
 const {iterator, metadata} = response;
-let results = await getAllResults(iterator);
+let results = await ctx.stub.getAllResultsFromIterator(iterator,false);
 
 // use await to get the object containing the iterator and metadata and
 // pass it to getAllResults. All Private Data type queries return an object
 // with only an iterator property
 let response = await ctx.stub.getPrivateDataByRange(collection, startKey, endKey);
-let results = await getAllResults(response.iterator);
+let results = await ctx.stub.getAllResultsFromIterator(response.iterator,false);
 ```
 
 ## How to use, the new way
@@ -122,20 +106,20 @@ It's more concise, the only difference between the 2 signatures of the old versu
 ```javascript
 // use await to get the iterator and pass it to getAllResults
 const promiseOfIterator = ctx.stub.getStateByRange(startKey, endKey);
-let results await getAllResults(promiseOfIterator);
+let results await ctx.stub.getAllResultsFromIterator(promiseOfIterator,false);
 
 // use await to get the object containing the iterator and metadata and
 // pass it to getAllResults. All Pagination type queries return an object
 // with iterator and metadata properties
 let promiseOfIterator = ctx.stub.getQueryResultWithPagination(JSON.stringify(query), 2);
-let results = await getAllResults(promiseOfIterator);
+let results = await ctx.stub.getAllResultsFromIterator(promiseOfIterator,false);
 const metadata = (await promiseOfIterator).metadata;
 
 // use await to get the object containing the iterator and metadata and
 // pass it to getAllResults. All Private Data type queries return an object
 // with only an iterator property
 let promiseOfIterator = ctx.stub.getPrivateDataByRange(collection, startKey, endKey);
-let results = await getAllResults(promiseOfIterator);
+let results = await ctx.stub.getAllResultsFromIterator(promiseOfIterator,false);
 ```
 Lets note the differences
 1. You do not use `await` when invoking the stub function. This means it will return a promise
