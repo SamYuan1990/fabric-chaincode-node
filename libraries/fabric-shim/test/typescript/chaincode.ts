@@ -83,6 +83,7 @@ class TestTS implements ChaincodeInterface {
         this.testProposal(stub);
         await this.testPagedQuery(stub);
         await this.testStateBasedEP(stub);
+        await this.testgetAllResultsFromIterator(stub);
     }
 
     testCompositeKey(stub: ChaincodeStub): void {
@@ -280,6 +281,23 @@ class TestTS implements ChaincodeInterface {
         const policy2: Uint8Array = await stub.getStateValidationParameter('aKey');
         const policy3: Uint8Array = await stub.getPrivateDataValidationParameter('aCollection', 'aKey');
         const ep2 = new KeyEndorsementPolicy(policy2);
+    }
+
+    async testgetAllResultsFromIterator(stub: ChaincodeStub){
+        // I think the feature unit test for getAllResultsFromIterator is covered in stub.js
+        // here just make sure code able to run without exception
+        stub.getAllResultsFromIterator(stub.getStateByRange('key2', 'key6'),false);
+        stub.getAllResultsFromIterator(stub.getStateByRange('key2', 'key6'),true);
+
+        stub.getAllResultsFromIterator(stub.getQueryResultWithPagination('Query string', 10).iterator,false);
+        stub.getAllResultsFromIterator(stub.getQueryResultWithPagination('Query string', 10).iterator,true);
+
+        const collection: string = 'a-collection';
+        const key: string = stub.createCompositeKey('obj', ['a', 'b']);
+        const value: string = 'some value';
+        stub.getAllResultsFromIterator(stub.getPrivateDataByRange(collection, key, value),false);
+        stub.getAllResultsFromIterator(stub.getPrivateDataByRange(collection, key, value),true);
+
     }
 }
 Shim.start(new TestTS());
